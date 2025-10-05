@@ -3,6 +3,18 @@
 import time
 import heapq
 
+from metrics_calc import (
+    profile_call,
+    write_metrics_csv,
+    make_run_greedy_and_print,
+    make_run_exhaustive_iter_and_print_all,
+    make_run_collect_all_and_keep_best,
+    make_run_best_stop_early_and_print,
+    make_run_bnb_and_print,
+)
+
+
+
 
 # this is the Greedy search
 def greedy_change(amount_cents, coin_values):
@@ -360,3 +372,76 @@ if __name__ == "__main__":
     for i, sol in enumerate(two_worst, 1):
         parts = " + ".join(f"{d/100:.2f}x{k}" for d, k in sol if k > 0) or "(no coins)"
         print(f"  {i}. "+"{"+parts+f"}} (coins: {sum(k for _, k in sol)})")
+
+
+run_greedy_and_print = make_run_greedy_and_print(greedy_change)
+run_exhaustive_iter_and_print_all = make_run_exhaustive_iter_and_print_all(all_solutions_iter)
+run_collect_all_and_keep_best = make_run_collect_all_and_keep_best(all_solutions_iter)
+run_best_stop_early_and_print = make_run_best_stop_early_and_print(best_solution_stop_early)
+run_bnb_and_print = make_run_bnb_and_print()
+
+metrics_rows = []
+
+    # 1) Greedy
+g_out, g_m = profile_call(run_greedy_and_print, AMT, DEN)
+print(f"[Greedy] time={g_m['time_sec']:.6f}s  peak_mem={g_m['peak_mem_kb']:.1f}KB  printed={g_m['printed_chars']} chars")
+metrics_rows.append({
+        "algorithm": "greedy",
+        "time_sec": g_m["time_sec"],
+        "peak_mem_kb": g_m["peak_mem_kb"],
+        "printed_chars": g_m["printed_chars"],
+        "coins": g_out["coins"],
+        "remainder": g_out["remainder"]/100.0
+    })
+
+    # 2) Exhaustive (iterative, prints everything)
+enum_out, enum_m = profile_call(run_exhaustive_iter_and_print_all, AMT, DEN)
+print(f"[Exhaustive/Iter] time={enum_m['time_sec']:.6f}s  peak_mem={enum_m['peak_mem_kb']:.1f}KB  printed={enum_m['printed_chars']} chars")
+metrics_rows.append({
+        "algorithm": "exhaustive_iter_print_all",
+        "time_sec": enum_m["time_sec"],
+        "peak_mem_kb": enum_m["peak_mem_kb"],
+        "printed_chars": enum_m["printed_chars"],
+        "solutions": enum_out["count"]
+    })
+
+    # 3) Exhaustive storing all solutions
+stored_out, stored_m = profile_call(run_collect_all_and_keep_best, AMT, DEN)
+print(f"[Exhaustive store] time={stored_m['time_sec']:.6f}s  peak_mem={stored_m['peak_mem_kb']:.1f}KB  printed={stored_m['printed_chars']} chars  solutions={stored_out['count']}")
+metrics_rows.append({
+        "algorithm": "exhaustive_store_all",
+        "time_sec": stored_m["time_sec"],
+        "peak_mem_kb": stored_m["peak_mem_kb"],
+        "printed_chars": stored_m["printed_chars"],
+        "solutions": stored_out["count"],
+        "best_cost": stored_out["best_cost"]
+    })
+
+    # 4) Early-stop
+early_out, early_m = profile_call(run_best_stop_early_and_print, AMT, DEN)
+print(f"[Early-Stop] time={early_m['time_sec']:.6f}s  peak_mem={early_m['peak_mem_kb']:.1f}KB  printed={early_m['printed_chars']} chars")
+if early_out:
+        metrics_rows.append({
+            "algorithm": "early_stop",
+            "time_sec": early_m["time_sec"],
+            "peak_mem_kb": early_m["peak_mem_kb"],
+            "printed_chars": early_m["printed_chars"],
+            "best_cost": early_out["coins"]
+        })
+
+    # 5) Branch & Bound with cuts
+bnb_out, bnb_m = profile_call(run_bnb_and_print, AMT, DEN)
+print(f"[BnB] time={bnb_m['time_sec']:.6f}s  peak_mem={bnb_m['peak_mem_kb']:.1f}KB  printed={bnb_m['printed_chars']} chars")
+metrics_rows.append({
+        "algorithm": "branch_and_bound",
+        "time_sec": bnb_m["time_sec"],
+        "peak_mem_kb": bnb_m["peak_mem_kb"],
+        "printed_chars": bnb_m["printed_chars"],
+        "best_cost": bnb_out["best_cost"],
+        "nodes": bnb_out["nodes"],
+        "calls": bnb_out["calls"],
+        "cuts": bnb_out["cuts"]
+    })
+
+    # 6) Save CSV
+write_metrics_csv(metrics_rows, csv_path="metrics_summary.csv")

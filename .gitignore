@@ -1,0 +1,23 @@
+# Python
+__pycache__/
+*.py[cod]
+*.pyo
+*.pyd
+*.egg-info/
+.venv/
+.env
+
+# OS noise
+.DS_Store
+
+# Generated outputs from your runs
+RecursiveSolution.txt
+all_solutions.txt
+all_solutions.csv
+ImproveIncrementally.txt
+metrics_summary.csv
+*.log
+
+# Big temp data
+tmp/
+temp/
