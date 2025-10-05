@@ -96,7 +96,7 @@ def all_solutions_recursive(amount_cents, coin_values, i=0, prefix=None, counter
         )
 
 
-# write he recursion to a file 
+# write the recursion to a file 
 def write_all_solutions_recursive(amount_eur, denoms_eur, txt_path="RecursiveSolution.txt"):
     AMT = int(round(amount_eur * 100))
     DEN = sorted({int(round(v * 100)) for v in denoms_eur}, reverse=True)

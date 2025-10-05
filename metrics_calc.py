@@ -1,4 +1,4 @@
-# metrics_calc.py  (no imports from Tp.py!)
+
 import io
 import csv
 import time
@@ -6,7 +6,7 @@ import tracemalloc
 from datetime import datetime
 from contextlib import redirect_stdout
 
-# ------------ generic profiler ------------
+
 def profile_call(fn, *args, capture_print=True, **kwargs):
     """
     Measure time, peak memory (KB via tracemalloc), and number of printed chars.
@@ -29,7 +29,7 @@ def profile_call(fn, *args, capture_print=True, **kwargs):
         "printed_chars": len(buf.getvalue()) if capture_print else 0,
     }
 
-# ------------ CSV writer ------------
+
 def write_metrics_csv(rows, csv_path="metrics_summary.csv"):
     # union header
     header = set()
@@ -46,7 +46,6 @@ def write_metrics_csv(rows, csv_path="metrics_summary.csv"):
             w.writerow(rr)
     print(f"[CSV] Wrote metrics table to {csv_path}")
 
-# ------------ branch & bound with cuts (self-contained) ------------
 def bnb_with_cuts(amount_cents, coin_values, max_first=True):
     """Standalone BnB that doesn’t depend on Tp.py"""
     best = None
@@ -82,7 +81,7 @@ def bnb_with_cuts(amount_cents, coin_values, max_first=True):
         "elapsed_sec": t1 - t0, "nodes": nodes, "calls": calls, "cuts": cuts
     }
 
-# ------------ small runner factories (bind your functions later) ------------
+
 def make_run_greedy_and_print(greedy_change):
     def _run(amount_cents, denoms):
         sol, total_coins, r = greedy_change(amount_cents, denoms)
