@@ -88,7 +88,7 @@ def all_solutions_recursive(amount_cents, coin_values, i=0, prefix=None, counter
     if i == len(coin_values):
         return
     d = coin_values[i]
-    for k in range(amount_cents // d, -1, -1):  # max..0 (original Prg3)
+    for k in range(amount_cents // d, -1, -1):  
         if counter is not None:
             counter['nodes'] = counter.get('nodes', 0) + 1
         yield from all_solutions_recursive(
@@ -372,6 +372,11 @@ if __name__ == "__main__":
     for i, sol in enumerate(two_worst, 1):
         parts = " + ".join(f"{d/100:.2f}x{k}" for d, k in sol if k > 0) or "(no coins)"
         print(f"  {i}. "+"{"+parts+f"}} (coins: {sum(k for _, k in sol)})")
+
+
+
+
+#get the metrics of algorithms you asked about them in the lecture
 
 
 run_greedy_and_print = make_run_greedy_and_print(greedy_change)
