@@ -16,8 +16,11 @@ all_solutions.txt
 all_solutions.csv
 ImproveIncrementally.txt
 metrics_summary.csv
+TP_Report.pdf
 *.log
 
 # Big temp data
 tmp/
 temp/
+
+
